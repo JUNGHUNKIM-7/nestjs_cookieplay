@@ -6,6 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
 import { assert } from 'console';
 
+//execution under guard
 @Injectable()
 export class AtStrategy extends PassportStrategy(Strategy, 'at-jwt') {
     constructor(

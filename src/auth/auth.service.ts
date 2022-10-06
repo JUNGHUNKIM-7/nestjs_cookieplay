@@ -7,10 +7,6 @@ import { User } from '@prisma/client';
 import * as argon from 'argon2';
 import { Request, Response } from 'express';
 
-export interface Redirection {
-    url: string;
-}
-
 @Injectable()
 export class AuthService implements Auth {
     constructor(
