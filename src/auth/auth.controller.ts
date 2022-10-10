@@ -12,6 +12,7 @@ import {
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
+import { UpdateAuthDto } from './dto/update-auth.dto';
 import { Auth, JwtPayload } from './types';
 import { Public } from './utils/decorators/public.decorator';
 import { User } from './utils/decorators/user.decorator';
@@ -46,18 +47,23 @@ export class AuthController implements Auth {
     }
 
     // reflector(SetMetaData) -> guard -> Strategy -> Custom Decorator than contains payload -> service
-    //injecting at token -> guard -> strategy -> req.user(payload) -> extractd email from param deco
+    // injecting atToken -> guard -> strategy -> req.user(payload) -> extractd email from param deco
     @Post('signout')
     @HttpCode(HttpStatus.OK)
     async signOut(@User() user: JwtPayload): Promise<void> {
         return this.authService.signOut(user);
     }
 
-    async chagnePassword(payload: JwtPayload): Promise<void> {
-        throw new Error('Method not implemented.');
+    @Post('account')
+    @HttpCode(HttpStatus.OK)
+    async changePwd(
+        @User() user: JwtPayload,
+        @Body() body: UpdateAuthDto,
+    ): Promise<void> {
+        return this.authService.changePwd(user, body);
     }
 
-    //injecting rt token + payload -> guard -> strategy(req, payload) -> req.user(payload) -> extractd email from param deco
+    // injecting rtToken -> guard -> strategy(req, payload) -> req.user(payload) -> extractd email from param deco
     @Public()
     @UseGuards(RtGuard)
     @HttpCode(HttpStatus.OK)

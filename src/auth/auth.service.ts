@@ -1,11 +1,12 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { Auth, JwtPayload, Token } from './types';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import * as argon from 'argon2';
 import { Request, Response } from 'express';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateAuthDto } from './dto/create-auth.dto';
+import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Auth, JwtPayload, Token } from './types';
 
 @Injectable()
 export class AuthService implements Auth {
@@ -84,11 +85,23 @@ export class AuthService implements Auth {
         });
     }
 
-    async chagnePassword(payload: JwtPayload): Promise<void> {
-        throw new Error('Method not implemented.');
+    async changePwd(
+        { email }: JwtPayload,
+        body: UpdateAuthDto,
+    ): Promise<void> {
+        //get user email from cookie
+        const u = await this.p.user.findUnique({ where: { email } });
+        if (!u) throw new ForbiddenException('not found user');
+
+        //then update
+        await this.p.user.update({
+            where: { email },
+            data: { password: await argon.hash(body.password) },
+        });
     }
 
     async refresh(user: JwtPayload): Promise<void> {
+        //find user from cookie
         const u = await this.p.user.findUnique({
             where: { email: user.email },
         });
@@ -123,10 +136,9 @@ export class AuthService implements Auth {
     }
 
     async updateRtToken(email: string, rt: string): Promise<void> {
-        const rToken = await argon.hash(rt);
         await this.p.user.update({
             where: { email },
-            data: { rToken },
+            data: { rToken: await argon.hash(rt) },
         });
     }
 }

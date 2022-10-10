@@ -32,17 +32,18 @@ export class RtStrategy extends PassportStrategy(Strategy, 'rt-jwt') {
         const { rToken } = await this.p.user.findUnique({
             where: { email: payload.email },
         });
+        const { rt } = req.cookies.token;
         assert(rToken !== null, 'rt(from db)is null now');
-        assert(req.cookies.token.rt !== null, 'rt is null now');
+        assert(rt !== null, 'rt is null now');
 
-        const rtMatches = await argon.verify(rToken, req.cookies.token.rt);
+        const rtMatches = await argon.verify(rToken, rt);
 
         if (!rtMatches) {
             throw new ForbiddenException('rt not matches');
         } else {
             return {
                 ...payload,
-                rt: req.cookies.token.rt,
+                rt: rt,
             };
         }
     }

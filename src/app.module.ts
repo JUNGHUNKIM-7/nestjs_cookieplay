@@ -11,7 +11,6 @@ import { PrismaService } from './prisma/prisma.service';
     imports: [AuthModule, PrismaModule],
     controllers: [AppController],
     providers: [AppService, PrismaService, {
-        //use guard globally
         provide: APP_GUARD,
         useClass: AtGuard,
     }],
