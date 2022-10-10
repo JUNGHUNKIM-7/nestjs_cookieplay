@@ -35,8 +35,8 @@ export class AtStrategy extends PassportStrategy(Strategy, 'at-jwt') {
     }
 }
 // validate(payload =  {
-// "sub" :  ..,
-// "email": ..
-// "iat"
-// "eat"
+    // "sub" :  ..,
+    // "email": ..
+    // "iat"
+    // "eat"
 // }) {}

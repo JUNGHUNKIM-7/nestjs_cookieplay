@@ -87,7 +87,7 @@ export class AuthService implements Auth {
 
     async changePwd(
         { email }: JwtPayload,
-        body: UpdateAuthDto,
+        { password }: UpdateAuthDto,
     ): Promise<void> {
         //get user email from cookie
         const u = await this.p.user.findUnique({ where: { email } });
@@ -96,7 +96,7 @@ export class AuthService implements Auth {
         //then update
         await this.p.user.update({
             where: { email },
-            data: { password: await argon.hash(body.password) },
+            data: { password: await argon.hash(password) },
         });
     }
 
