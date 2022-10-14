@@ -2,7 +2,6 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import * as argon from 'argon2';
-import { Request, Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -17,8 +16,6 @@ export class AuthService implements Auth {
 
     async signUp(
         { email, password: plainPassword }: CreateAuthDto,
-        req: Request,
-        res: Response,
     ): Promise<Token> {
         let user: User;
 
@@ -57,8 +54,6 @@ export class AuthService implements Auth {
 
     async signIn(
         { email, password }: CreateAuthDto,
-        req: Request,
-        res: Response,
     ): Promise<Token> {
         //find user
         const user = await this.p.user.findUnique({ where: { email } });
@@ -131,7 +126,7 @@ export class AuthService implements Auth {
         const [at, rt] = await Promise.all([
             this.jwt.signAsync({ sub, email }, {
                 secret: 'at-secret',
-                expiresIn: '5m',
+                expiresIn: '1m',
             }),
             this.jwt.signAsync({ sub, email }, {
                 secret: 'rt-secret',

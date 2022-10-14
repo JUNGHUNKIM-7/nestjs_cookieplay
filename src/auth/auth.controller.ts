@@ -4,12 +4,8 @@ import {
     HttpCode,
     HttpStatus,
     Post,
-    Redirect,
-    Req,
-    Res,
     UseGuards,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -28,10 +24,8 @@ export class AuthController implements Auth {
     // @Redirect('/', 301) // it also applied GlobalGuard(AtGuard)
     async signUp(
         @Body() dto: CreateAuthDto,
-        @Req() req: Request,
-        @Res({ passthrough: true }) res: Response,
     ): Promise<Token> {
-        return this.authService.signUp(dto, req, res);
+        return this.authService.signUp(dto);
     }
 
     @Public()
@@ -40,10 +34,8 @@ export class AuthController implements Auth {
     // @Redirect('/', 301)
     async signIn(
         @Body() dto: CreateAuthDto,
-        @Req() req: Request,
-        @Res({ passthrough: true }) res: Response,
     ): Promise<Token> {
-        return this.authService.signIn(dto, req, res);
+        return this.authService.signIn(dto);
     }
 
     // reflector(SetMetaData) -> guard -> Strategy -> Custom Decorator than contains payload -> service

@@ -18,7 +18,6 @@ export class AtStrategy extends PassportStrategy(Strategy, 'at-jwt') {
 
     async validate(payload: JwtPayload): Promise<JwtPayload> {
         const { email } = payload;
-        console.log(email);
         assert(email !== null, 'email is null now');
         const user = await this.p.user.findUnique({ where: { email } });
         if (!user) throw new ForbiddenException('user not found');

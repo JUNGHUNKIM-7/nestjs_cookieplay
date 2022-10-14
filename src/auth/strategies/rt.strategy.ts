@@ -5,7 +5,6 @@ import { JwtPayload } from '../types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
 import { Request } from 'express';
-import { assert } from 'console';
 
 @Injectable()
 export class RtStrategy extends PassportStrategy(Strategy, 'rt-jwt') {
@@ -18,24 +17,24 @@ export class RtStrategy extends PassportStrategy(Strategy, 'rt-jwt') {
     }
 
     async validate(
-        req: Request, //from passReqToCallback
+        req: Request,
         payload: JwtPayload,
     ): Promise<JwtPayload> {
         const { rToken } = await this.p.user.findUnique({
             where: { email: payload.email },
         });
-        const { rt } = req.cookies.token;
-        assert(rToken !== null, 'rt(from db)is null now');
-        assert(rt !== null, 'rt is null now');
-
-        const rtMatches = await argon.verify(rToken, rt);
+        const rt = req.header('authorization').split(' ').at(-1).trim();
+        const rtMatches = await argon.verify(
+            rToken,
+            rt,
+        );
 
         if (!rtMatches) {
             throw new ForbiddenException('rt not matches');
         } else {
             return {
                 ...payload,
-                rt: rt,
+                rt,
             };
         }
     }
