@@ -11,15 +11,7 @@ import { assert } from 'console';
 export class RtStrategy extends PassportStrategy(Strategy, 'rt-jwt') {
     constructor(private readonly p: PrismaService) {
         super({
-            jwtFromRequest: ExtractJwt.fromExtractors([
-                (req: Request) => {
-                    const { cookies: { token: { rt } } } = req;
-                    assert(rt !== null, 'at token is null');
-                    if (req.cookies && rt !== null) {
-                        return rt;
-                    } else null;
-                },
-            ]),
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             secretOrKey: 'rt-secret',
             passReqToCallback: true,
         });

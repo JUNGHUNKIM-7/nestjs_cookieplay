@@ -8,8 +8,8 @@ export interface Token {
 }
 
 export interface Auth {
-    signUp(dto: CreateAuthDto, req: Request, res: Response): Promise<void>;
-    signIn(dto: CreateAuthDto, req: Request, res: Response): Promise<void>;
+    signUp(dto: CreateAuthDto, req: Request, res: Response): Promise<Token>;
+    signIn(dto: CreateAuthDto, req: Request, res: Response): Promise<Token>;
     signOut(payload: JwtPayload): Promise<void>;
     changePwd(payload: JwtPayload, body: UpdateAuthDto): Promise<void>;
     refresh(payload: JwtPayload): Promise<void>;

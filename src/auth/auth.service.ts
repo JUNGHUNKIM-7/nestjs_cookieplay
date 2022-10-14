@@ -19,7 +19,7 @@ export class AuthService implements Auth {
         { email, password: plainPassword }: CreateAuthDto,
         req: Request,
         res: Response,
-    ): Promise<void> {
+    ): Promise<Token> {
         let user: User;
 
         //find user
@@ -44,18 +44,22 @@ export class AuthService implements Auth {
         //update rt token
         await this.updateRtToken(email, rt);
 
-        //save at to cookie
-        req.cookies['token'] = { at, rt };
+        // //save at to cookie
+        // req.cookies['token'] = { at, rt };
 
-        //send cookie
-        res.cookie('token', { at, rt });
+        // //send cookie
+        // res.cookie('token', { at, rt });
+        return {
+            at,
+            rt,
+        };
     }
 
     async signIn(
         { email, password }: CreateAuthDto,
         req: Request,
         res: Response,
-    ): Promise<void> {
+    ): Promise<Token> {
         //find user
         const user = await this.p.user.findUnique({ where: { email } });
         if (!user) throw new ForbiddenException('not found user');
@@ -71,10 +75,15 @@ export class AuthService implements Auth {
         await this.updateRtToken(email, rt);
 
         //save at to cookie
-        req.cookies['token'] = { at, rt };
+        // req.cookies['token'] = { at, rt };
 
         //send cookie
-        res.cookie('token', { at, rt });
+        // res.cookie('token', { at, rt });
+
+        return {
+            at,
+            rt,
+        };
     }
 
     async signOut({ email }: JwtPayload): Promise<void> {

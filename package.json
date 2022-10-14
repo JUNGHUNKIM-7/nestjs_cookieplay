@@ -8,7 +8,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "fmt": "deno fmt",
-    "seed": "tsnd --respawn prisma/index.ts",
+    "seed": "ts-node prisma/seed.ts",
     "studio": "npx prisma studio",
     "gen": "npx prisma generate",
     "start": "nest start",

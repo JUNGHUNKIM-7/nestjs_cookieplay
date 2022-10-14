@@ -13,7 +13,7 @@ import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import { Auth, JwtPayload } from './types';
+import { Auth, JwtPayload, Token } from './types';
 import { Public } from './utils/decorators/public.decorator';
 import { User } from './utils/decorators/user.decorator';
 import { RtGuard } from './utils/guards';
@@ -25,24 +25,24 @@ export class AuthController implements Auth {
     @Public()
     @Post('signup')
     @HttpCode(HttpStatus.CREATED)
-    @Redirect('/', 301) // it also applied GlobalGuard(AtGuard)
+    // @Redirect('/', 301) // it also applied GlobalGuard(AtGuard)
     async signUp(
         @Body() dto: CreateAuthDto,
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
-    ): Promise<void> {
+    ): Promise<Token> {
         return this.authService.signUp(dto, req, res);
     }
 
     @Public()
     @Post('signin')
     @HttpCode(HttpStatus.OK)
-    @Redirect('/', 301)
+    // @Redirect('/', 301)
     async signIn(
         @Body() dto: CreateAuthDto,
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
-    ): Promise<void> {
+    ): Promise<Token> {
         return this.authService.signIn(dto, req, res);
     }
 
