@@ -12,13 +12,13 @@ export class AtStrategy extends PassportStrategy(Strategy, 'at-jwt') {
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: 'at-secret',
+            secretOrKey: 'at-secret'
         });
     }
 
     async validate(payload: JwtPayload): Promise<JwtPayload> {
         const { email } = payload;
-        assert(email !== null, 'email is null now');
+        assert(email != null, 'email cant be null');
         const user = await this.p.user.findUnique({ where: { email } });
         if (!user) throw new ForbiddenException('user not found');
 

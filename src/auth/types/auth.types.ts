@@ -5,6 +5,7 @@ import { UpdateAuthDto } from '../dto/update-auth.dto';
 export interface Token {
     at: string;
     rt: string;
+    updatedAt: string;
 }
 
 export interface Auth {
@@ -12,7 +13,7 @@ export interface Auth {
     signIn(dto: CreateAuthDto, req: Request, res: Response): Promise<Token>;
     signOut(payload: JwtPayload): Promise<void>;
     changePwd(payload: JwtPayload, body: UpdateAuthDto): Promise<void>;
-    refresh(payload: JwtPayload): Promise<void>;
+    refresh(payload: JwtPayload): Promise<Token>;
 }
 
 export interface JwtPayload {

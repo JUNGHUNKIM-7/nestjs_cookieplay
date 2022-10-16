@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import * as argon from 'argon2';
@@ -21,7 +21,7 @@ export class AuthService implements Auth {
 
         //find user
         user = await this.p.user.findUnique({ where: { email } });
-        if (user) throw new ForbiddenException('user is already taken');
+        if (user) throw new HttpException('user exist', HttpStatus.BAD_REQUEST);
 
         //hashed password
         const password = await argon.hash(plainPassword);
@@ -36,19 +36,15 @@ export class AuthService implements Auth {
         });
 
         //create token
-        const { at, rt } = await this.makeToken(user.id, user.email);
+        const { at, rt, updatedAt } = await this.makeToken(user.id, user.email);
 
         //update rt token
         await this.updateRtToken(email, rt);
 
-        // //save at to cookie
-        // req.cookies['token'] = { at, rt };
-
-        // //send cookie
-        // res.cookie('token', { at, rt });
         return {
             at,
             rt,
+            updatedAt,
         };
     }
 
@@ -57,27 +53,29 @@ export class AuthService implements Auth {
     ): Promise<Token> {
         //find user
         const user = await this.p.user.findUnique({ where: { email } });
-        if (!user) throw new ForbiddenException('not found user');
+        if (!user) {
+            throw new HttpException(
+                'not found user',
+                HttpStatus.NOT_FOUND,
+            );
+        }
 
         //password verify
         const pwMatches = await argon.verify(user.password, password);
-        if (!pwMatches) throw new ForbiddenException('password not matches');
+        if (!pwMatches) {
+            throw new HttpException('pw not matches', HttpStatus.BAD_REQUEST);
+        }
 
         //create token
-        const { at, rt } = await this.makeToken(user.id, user.email);
+        const { at, rt, updatedAt } = await this.makeToken(user.id, user.email);
 
         //update rt token
         await this.updateRtToken(email, rt);
 
-        //save at to cookie
-        // req.cookies['token'] = { at, rt };
-
-        //send cookie
-        // res.cookie('token', { at, rt });
-
         return {
             at,
             rt,
+            updatedAt,
         };
     }
 
@@ -95,7 +93,7 @@ export class AuthService implements Auth {
     ): Promise<void> {
         //get user email from cookie
         const u = await this.p.user.findUnique({ where: { email } });
-        if (!u) throw new ForbiddenException('not found user');
+        if (!u) throw new HttpException('not found user', HttpStatus.NOT_FOUND);
 
         //then update
         await this.p.user.update({
@@ -104,38 +102,56 @@ export class AuthService implements Auth {
         });
     }
 
-    async refresh(user: JwtPayload): Promise<void> {
+    async refresh(user: JwtPayload): Promise<Token> {
         //find user from cookie
         const u = await this.p.user.findUnique({
             where: { email: user.email },
         });
-        if (!u) throw new ForbiddenException('not found user');
+        if (!u) throw new HttpException('not found user', HttpStatus.NOT_FOUND);
 
         //match hashed rtoken and rtToken
         const rtMatches = await argon.verify(u.rToken, user.rt);
-        if (!rtMatches) throw new ForbiddenException('rt token not matches');
+        if (!rtMatches) {
+            throw new HttpException('rt token invalid', HttpStatus.BAD_REQUEST);
+        }
 
         //matches, make new token
-        const { rt: newRt } = await this.makeToken(u.id, user.email);
+        const { at, rt: newRt, updatedAt } = await this.makeToken(
+            u.id,
+            user.email,
+        );
 
         //then update
         await this.updateRtToken(user.email, newRt);
+
+        return {
+            at,
+            rt: newRt,
+            updatedAt,
+        };
     }
 
     async makeToken(sub: string, email: string): Promise<Token> {
         const [at, rt] = await Promise.all([
             this.jwt.signAsync({ sub, email }, {
                 secret: 'at-secret',
-                expiresIn: '1m',
+                expiresIn: '15m',
             }),
             this.jwt.signAsync({ sub, email }, {
                 secret: 'rt-secret',
                 expiresIn: '1d',
             }),
         ]);
+
+        const user = await this.p.user.findUnique({ where: { email } });
+        if (!user) {
+            throw new HttpException('user not exist', HttpStatus.NOT_FOUND);
+        }
+
         return {
             at,
             rt,
+            updatedAt: user.updatedAt.toISOString(),
         };
     }
 
@@ -144,5 +160,9 @@ export class AuthService implements Auth {
             where: { email },
             data: { rToken: await argon.hash(rt) },
         });
+    }
+
+    async deleteAllForDebug(): Promise<void> {
+        await this.p.user.deleteMany({});
     }
 }

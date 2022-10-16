@@ -30,7 +30,6 @@ export class AuthController implements Auth {
 
     @Public()
     @Post('signin')
-    @HttpCode(HttpStatus.OK)
     // @Redirect('/', 301)
     async signIn(
         @Body() dto: CreateAuthDto,
@@ -60,7 +59,13 @@ export class AuthController implements Auth {
     @UseGuards(RtGuard)
     @HttpCode(HttpStatus.OK)
     @Post('refresh')
-    async refresh(@User() user: JwtPayload): Promise<void> {
+    async refresh(@User() user: JwtPayload): Promise<Token> {
         return this.authService.refresh(user);
+    }
+
+    @HttpCode(HttpStatus.OK)
+    @Post('debug')
+    async deleteAllForDebug(): Promise<void> {
+        return this.authService.deleteAllForDebug();
     }
 }
