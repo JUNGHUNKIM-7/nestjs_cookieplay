@@ -2,7 +2,8 @@ use('demo');
 
 // The drop() command destroys all data from a collection.
 
-coll = db.prac
+db.User.deleteMany({})
+
 // coll.drop()
 
 // Insert a few documents into the sales collection.
@@ -19,7 +20,7 @@ coll = db.prac
 
 // Run a find command to view items sold on April 4th, 2014.
 // coll.find({ date: { $gte: new Date('2014-04-04'), $lt: new Date('2014-04-05') } });
-coll.find()
+// coll.find()
 
 // Build an aggregation to view total sales for each product in 2014.
 // const aggregation = [

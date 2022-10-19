@@ -1,10 +1,9 @@
 ```js
 function main() {
-    const data = {
-        name: "val"
-    }
+  const data = {
+    name: "val",
+  };
 
-    const b = {
-    }
+  const b = {};
 }
 ```

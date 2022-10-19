@@ -9,7 +9,7 @@
     "prebuild": "rimraf dist",
     "fmt": "deno fmt",
     "seed": "ts-node prisma/seed.ts",
-    "studio": "npx prisma studio",
+    "studio": "npx prisma studio --port 8080",
     "gen": "npx prisma generate",
     "start": "nest start",
     "build": "nest build",

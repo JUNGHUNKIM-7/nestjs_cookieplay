@@ -1,5 +1,0 @@
-src/**/*.ts
-src/*.ts
-test/**/*.ts
-test/*.ts
-prisma/*.ts
